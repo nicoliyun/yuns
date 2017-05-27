@@ -1,0 +1,71 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               token接口测试，包括正常请求验证和请求字段为空的请求验证。
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        token
+Resource          token-flow.txt
+
+*** Test Cases ***
+1754 正常性验证-android
+    [Documentation]    正常请求：参数正常，返回200
+    ...
+    ...    tokencase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token通过验证    ${Token-Case}    1    200
+    Comment    连接数据库    pymysql    ${DB}
+    Comment    Execute Sql Script    ${CURDIR}${/}case${/}testsql.sql
+
+1755 正常性验证-IOS
+    [Documentation]    正常请求：参数正常，返回200
+    ...
+    ...    tokencase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token通过验证    ${Token-Case}    2    200
+
+1756 正常性验证-web
+    [Documentation]    正常请求：参数正常，返回200
+    ...
+    ...    tokencase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token通过验证    ${Token-Case}    3    200
+
+1757 正常性验证-unknown
+    [Documentation]    正常请求：参数正常，返回200
+    ...
+    ...    tokencase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token通过验证    ${Token-Case}    4    200
+
+1758 错误请求-pcid为空
+    [Documentation]    错误请求：pcid为空，返回400
+    ...
+    ...    tokencase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    pcid为空    ${Token-Case}    5    400
+
+1759 错误请求-udid为空
+    [Documentation]    错误请求：udid为空，返回400
+    ...
+    ...    tokencase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    udid为空    ${Token-Case}    6    400

@@ -1,0 +1,333 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+
+*** Keywords ***
+token值为空-Post
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空Get 请求
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenNull：空的token值
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${ramdom}    获取随机字符串    5
+    Comment    ${newparas}    Replace String    ${paras}    ${paras[26:27]}    ${ramdom}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+正常通过验证-get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    Comment    连接数据库    pymysql    ${DB}
+    Comment    ${news_id}    获取新闻id
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${newpars}    部分内容替换    ${paras}    ${paras[30:41]}    ${news_id}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+token值为空-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空Get 请求
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenNull：空的token值
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+sourceid为空-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+sourceid为空-Post
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回json中需包含likestyle，mylikestyle两个key，对应的value因不固定性所有在此不做判断
+    ${ContentList}    To Json    ${Response.content}
+    ${dict}    Set Variable    ${ContentList[0]}
+    Dictionary Should Contain Key    ${dict}    sourceId    [test-info]输出不包含key：sourceId
+    Dictionary Should Contain Key    ${dict}    content    [test-info]输出不包含key：content
+    Dictionary Should Contain Key    ${dict}    status    [test-info]输出不包含key：status
+
+删除已存在数据
+    [Arguments]    ${targid}    ${table}    ${searchid}
+    [Documentation]    删除数据库某条数据
+    ...
+    ...    targdid：数据库查询语句 查询目标
+    ...
+    ...    table：要查询的表名
+    ...
+    ...    searchid：查询条件
+    连接数据库    pymysql    ${DB}
+    删除数据库数据    select ${targid} from ${table} where ${searchid}    delete from ${table} where ${searchid}
+    断开数据库
+
+获取数据对应id
+    [Arguments]    ${targid}    ${table}    ${searchid}
+    [Documentation]    获取数据对应id，通过查询到的一条数据，取其某个id项
+    ...
+    ...    targid：目标id
+    ...
+    ...    table：查询的表
+    ...
+    ...    searchid：查询条件
+    连接数据库    pymysql    ${DB}
+    ${res}    查询数据库    select ${targid} from ${table} where ${searchid}
+    ${length}    Get Length    ${res}
+    Should Be True    ${length}!=0    [test-info]length为空，数据库中未查找到结果
+    ${res_int}    Set Variable    ${res[0][0]}
+    ${return}    Convert To String    ${res_int}
+    断开数据库
+    [Return]    ${return}
+
+正常通过验证-post-article
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，post请求，先执行SQL语句删除要写入的数据，保证数据库写入前上次POST的写入被删除
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    删除已存在数据    *    ${TABLENAME}    ${ARTICLE_SOURCEID}
+    Comment    ${news_id}    获取新闻id
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${new_paras}    部分内容替换    ${paras}    ${paras[29:40]}    ${news_id}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    [Teardown]
+
+正常通过验证-post-articl（parentid）
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，对新闻评论的评论，带有parentid（父 id），先获取id
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    Comment    连接数据库    pymysql    ${DB}
+    Comment    ${news_id}    获取新闻id
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${ARTICLE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    部分内容替换    ${paras}    ${paras[-2:]}    ${data}
+    Comment    ${newpar}    部分内容替换    ${newparas}    ${newparas[29:40]}    ${news_id}
+    ${Resp}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    [Teardown]
+
+正常通过验证-post-vote
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，post请求，先执行SQL语句删除要写入的数据，保证数据库写入前上次POST的写入被删除
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    删除已存在数据    *    ${TABLENAME}    ${VOTE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+正常通过验证-post-vote(parentid)
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，对投票评论的评论，带有parentid（父 id），先获取id
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${VOTE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    Replace String    ${paras}    ${paras[-2:]}    ${data}
+    ${Resp}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+正常通过验证-post-topic
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，post请求，先执行SQL语句删除要写入的数据，保证数据库写入前上次POST的写入被删除
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    删除已存在数据    *    ${TABLENAME}    ${TOPIC_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+正常通过验证-post-topic(parentid)
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，对专题评论的评论，带有parentid（父 id），先获取id
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${TOPIC_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    Replace String    ${paras}    ${paras[-2:]}    ${data}
+    ${Resp}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+对新闻多次评论
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    多次评论验证，两次post请求，先执行SQL语句删除要写入的数据，保证数据库写入前上次POST的写入被删除
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    删除已存在数据    *    ${TABLENAME}    ${ARTICLE_SOURCEID}
+    Comment    ${news_id}    获取新闻id
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${newpars}    部分内容替换    ${paras}    ${paras[29:40]}    ${news_id}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    ${Resp1}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp1}
+    结果状态码验证    ${Resp1}    ${code}
+    [Teardown]
+
+对评论多次评论
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    对评论对此评论，两次post请求，先执行SQL语句删除要写入的数据，保证数据库写入前上次POST的写入被删除
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    Comment    连接数据库    pymysql    ${DB}
+    Comment    ${news_id}    获取新闻id
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${ARTICLE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    Replace String    ${paras}    ${paras[-2:]}    ${data}
+    Comment    ${newpar}    部分内容替换    ${newparas}    ${newparas[29:40]}    ${news_id}
+    ${Resp}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    ${Resp1}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp1}
+    结果状态码验证    ${Resp1}    ${code}
+
+正常通过验证(投票+专题)-get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}

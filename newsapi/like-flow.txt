@@ -1,0 +1,393 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+
+*** Keywords ***
+token值为空-Post
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空-post
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenNull：空的token值
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${ramdom}    获取随机字符串    5
+    ${newparas}    Replace String    ${paras}    ${paras[26:27]}    ${ramdom}
+    ${Resp}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+token值为空-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空-get
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenNull：空的token值
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+参数为空-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    参数为空-get
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+参数为空-Post
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    参数为空-post
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回json中需包含likestyle，mylikestyle两个key，对应的value因不固定性所有在此不做判断
+    ${ContentList}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${ContentList}    likeStyle    [test-info]输出不包含key：likeStyle
+    Dictionary Should Contain Key    ${ContentList}    myLikeStyle    [test-info]输出不包含key：myLikeStyle
+    Dictionary Should Contain Key    ${ContentList['likeStyle']}    101
+    Should Be Equal As Strings    ${ContentList['myLikeStyle']}    101
+
+Post返回检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：Post返回，
+    ...
+    ...    判断状态是否为200，如果是PASS，
+    ...
+    ...    判断状态是否为400，如果是，取出返回内容检查返回内容是否为duplicate，是pass
+    ...
+    ...    判断状态为其他（非200，非400），fail
+    ${status}    Set Variable    ${Response.status_code}
+    ${json}    Run Keyword If    ${status}==200    Pass Execution    status=200,test passed
+    ...    ELSE IF    ${status}==400    To Json    ${Response.content}
+    ...    ELSE    fail
+    Comment    log    ${json['message']}
+    Should Be Equal As Strings    ${json['message']}    Duplicate commit like    [test-info]message获取到的value错误
+
+获取数据对应id
+    [Arguments]    ${targid}    ${table}    ${searchid}
+    [Documentation]    获取数据对应id，通过查询到的一条数据，取其某个id项
+    ...
+    ...    targid：目标id
+    ...
+    ...    table：查询的表
+    ...
+    ...    searchid：查询条件
+    连接数据库    pymysql    ${DB}
+    ${res}    查询数据库    select ${targid} from ${table} where ${searchid}
+    ${length}    Get Length    ${res}
+    Should Be True    ${length}!=0    [test-info]length为空，数据库中未查找到结果
+    ${res_int}    Set Variable    ${res[0][0]}
+    ${return}    Convert To String    ${res_int}
+    断开数据库
+    [Return]    ${return}
+
+正常验证-Post
+    [Arguments]    ${exceldir}    ${num}
+    [Documentation]    正常通过验证-post
+    ...
+    ...
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    Post返回检查    ${Resp}
+
+正常验证-Post-vote
+    [Arguments]    ${exceldir}    ${num}
+    [Documentation]    正常通过验证，对投票评论点赞，先获取该评论的id
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${VOTE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    Replace String    ${paras}    ${paras[31:32]}    ${data}
+    ${Resp}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    Post返回检查    ${Resp}
+
+正常验证-Post-article
+    [Arguments]    ${exceldir}    ${num}
+    [Documentation]    正常通过验证，对新闻评论点赞，先获取该评论的id
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${ARTICLE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    Replace String    ${paras}    ${paras[34:35]}    ${data}
+    ${Resp}    Post请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    Post返回检查    ${Resp}
+
+正常验证-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证-get
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+正常验证-Get-vote
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，获取投票评论点赞数，先获取该评论的id
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${VOTE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    Replace String    ${paras}    ${paras[-2:]}    ${data}
+    ${Resp}    Get请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+正常验证-Get-ariticle
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，对新闻评论点赞数，先获取该评论的id
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${data}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${ARTICLE_SOURCEID}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${newparas}    Replace String    ${paras}    ${paras[-2:]}    ${data}
+    ${Resp}    Get请求    ${newparas}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+业务关联性验证-Post
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    业务关联性验证-post
+    ...
+    ...
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    code：返回状态码
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+业务关联性验证-评论点赞状态和次数判定
+    [Arguments]    ${exceldir}    ${num}    ${exceldir2}    ${num2}    ${condition}    ${replace}
+    [Documentation]    验证评论点赞后接口返回的该评论点赞总次数是否增加1，是否已记录已点赞
+    ...
+    ...    ${exceldir}：请求新闻的评论列表所需参数的excel地址
+    ...
+    ...    ${num}：获取参数的行数-1
+    ...
+    ...    ${exceldir2}：获取对评论点赞时所需参数的excel地址
+    ...
+    ...    ${num2}：获取参数的行数-1
+    ...
+    ...    ${replace}：需要被替换的参数的位置(从第几位到第几位，或某一个特定的字符等)
+    ...
+    ...    ${condition}：数据库查询需要的条件
+    ${id}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${condition}
+    ${token}    获取随机token
+    ${header}    添加Header    ${token}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${resp}    Get请求    ${paras}    ${header}    #获取点赞前的评论列表的数据
+    ${likes}    获取评论的点赞数    ${resp.content}    ${id}    #未点赞前的原始点赞数
+    ${paras2}    获取请求参数    ${exceldir2}    ${num2}    #获取对评论点赞的参数
+    ${paras_new}    部分内容替换    ${paras2}    ${paras2[${replace}]}    ${id}
+    ${resp2}    Post请求    ${paras_new}    ${header}
+    返回状态码判定    ${resp2.status_code}    200    返回的状态码为${resp2.status_code}    #返回值为200则为点赞成功
+    ${resp3}    Get请求    ${paras}    ${header}    #获取点赞后的评论列表的数据
+    ${likes2}    获取评论的点赞数    ${resp3.content}    ${id}    #点赞后的点赞数
+    ${sub}    Evaluate    ${likes2[0]}-${likes[0]}
+    返回状态码判定    ${sub}    1    点赞次数没有正确+1,点赞前为${likes[0]}，点赞后为${likes2[0]}    #对比点赞后的likes的次数有没有正常增加1
+    Comment    Should Be Equal    ${likes2[1]}    1    没有记录我的已点赞状态
+
+获取随机token
+    [Documentation]    获取随机token
+    ...
+    ...    ${randomint}：获取随机tokne需要的随机的udid的数值
+    ...
+    ...    ${randomstr}：将获得的随机数值转换为str,以便后续替换请求参数
+    ${paras}    获取请求参数    ${Token-Case}    10
+    ${randomint}    获取随机数字    1    100000
+    ${randomstr}    Convert To String    ${randomint}
+    ${paras_new}    部分内容替换    ${paras}    ${paras[-2:]}    ${randomstr}
+    ${Resp}    token-Get请求    ${paras_new}
+    ${tokendict}    Run Keyword If    ${Resp.status_code}==200    To Json    ${Resp.content}
+    ...    ELSE    Fail    [test-info]token接口返回错误：status_code=${Resp.status_code}
+    Comment    ${tokendict}    To Json    ${Resp.content}
+    ${TokenValues}    Set Variable    ${tokendict['accessToken']}
+    [Return]    ${TokenValues}
+
+获取评论的点赞数
+    [Arguments]    ${resp.content}    ${newsId}
+    [Documentation]    获取评论的点赞数和点赞状态（查找传入的数据中某个参数等于一个特定值的那一组数据）
+    ...
+    ...    ${newsId}：需要查找的那个参数的值
+    ...
+    ...    @{content}：被查找的内容
+    ${resp_json}    to json    ${resp.content}
+    @{resp_json}    Convert To List    ${resp_json}
+    : FOR    ${i}    IN    @{resp_json}
+    \    Run Keyword If    ${i['id']}==${newsId}    Exit For Loop
+    ${likes}    Set Variable    ${i['likes']}
+    ${isliked}    Set Variable    ${i['isLiked']}
+    [Return]    ${likes}    ${isliked}
+
+返回状态码判定
+    [Arguments]    ${first}    ${second}    ${message}
+    [Documentation]    判断返回内容
+    ...
+    ...    ${first}：被判定的内容
+    ...
+    ...    ${second}：传入的判定值
+    ...
+    ...    ${message}：若两者不相等返回的信息
+    Should Be Equal As Integers    ${first}    ${second}    ${message}
+
+返回内容及状态码检查
+    [Arguments]    ${resp}
+    ${status}    Set Variable    ${resp.status_code}
+    ${json}    Run Keyword If    ${status}==400    To Json    ${resp.content}
+    ...    ELSE    fail    [test-info]返回的状态码不为400
+    Should Be Equal As Strings    ${json['message']}    Duplicate commit like    [test-info]message获取到的value错误
+
+同一条评论多次点赞(同一个用户)
+    [Arguments]    ${condition}    ${exceldir}    ${num}    ${replace}
+    ${id}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${condition}
+    ${token}    获取随机token
+    ${header}    添加Header    ${token}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${paras_new}    部分内容替换    ${paras}    ${paras[${replace}]}    ${id}
+    ${resp}    Post请求    ${paras_new}    ${header}    #对新闻评论第一次点赞
+    返回状态码判定    ${resp.status_code}    200    返回的状态码为${resp.status_code}
+    ${resp2}    Post请求    ${paras_new}    ${header}    #对新闻评论第二次点赞
+    返回内容及状态码检查    ${resp2}
+
+同一条评论多次点赞(不同用户)
+    [Arguments]    ${condition}    ${exceldir}    ${num}    ${replace}
+    ${id}    获取数据对应id    ${TARG_ID}    ${TABLENAME}    ${condition}
+    ${token}    获取随机token
+    ${header}    添加Header    ${token}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${paras_new}    部分内容替换    ${paras}    ${paras[${replace}]}    ${id}
+    ${resp}    Post请求    ${paras_new}    ${header}    #第一个用户对评论点赞
+    返回状态码判定    ${resp.status_code}    200    返回的状态码为${resp.status_code}
+    ${token2}    获取随机token
+    ${header2}    添加Header    ${token2}
+    ${resp2}    Post请求    ${paras_new}    ${header2}    #第二个用户对同一条评论点赞
+    返回状态码判定    ${resp2.status_code}    200    返回的状态码为${resp2.status_code}
+
+同一条新闻多次点赞(同一个用户)
+    [Arguments]    ${exceldir}    ${num}
+    ${token}    获取随机token
+    ${header}    添加Header    ${token}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${resp}    Post请求    ${paras}    ${header}    #对新闻评论第一次点赞
+    返回状态码判定    ${resp.status_code}    200    返回的状态码为${resp.status_code}
+    ${resp2}    Post请求    ${paras}    ${header}    #对新闻评论第二次点赞
+    返回内容及状态码检查    ${resp2}
+
+同一条新闻多次点赞(不同用户)
+    [Arguments]    ${exceldir}    ${num}
+    ${token}    获取随机token
+    ${header}    添加Header    ${token}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${resp}    Post请求    ${paras}    ${header}    #第一个用户对评论点赞
+    返回状态码判定    ${resp.status_code}    200    返回的状态码为${resp.status_code}
+    ${token2}    获取随机token
+    ${header2}    添加Header    ${token2}
+    ${resp2}    Post请求    ${paras}    ${header2}    #第二个用户对同一条评论点赞
+    返回状态码判定    ${resp2.status_code}    200    返回的状态码为${resp2.status_code}

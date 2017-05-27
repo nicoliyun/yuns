@@ -1,0 +1,107 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               新闻详情接口测试包含：该接口有三种传参方式：news，newid，relative
+...
+...               通过性验证；token值、newsid参数为空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        news
+Resource          news-flow.txt
+
+*** Test Cases ***
+1770 正确性验证-news
+    [Documentation]    通过性验证：正确请求
+    ...
+    ...    news接口中的news传参方法验证
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-news    ${News-Case}    1    200
+
+1771 正确性验证-newid
+    [Documentation]    通过性验证：正确请求
+    ...
+    ...    news接口中的newsid传参方法验证
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-newsid    ${News-Case}    2    200
+
+1772 正确性验证-relative
+    [Documentation]    通过性验证：正确请求
+    ...
+    ...    news接口中，relative传参方法验证
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-relative    ${News-Case}    3    200
+
+1773 错误请求-token为空-news
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空    ${News-Case}    1    401
+
+1774 错误请求-token为空-newsid
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空    ${News-Case}    2    401
+
+1775 错误请求-token为空-relative
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空    ${News-Case}    3    401
+
+1776 错误请求-newsid为空-news
+    [Documentation]    错误请求：newsid为空
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    newsid为空    ${News-Case}    4    400
+
+1777 错误请求-newsid为空-newsid
+    [Documentation]    错误请求：newsid为空
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    newsid为空    ${News-Case}    5    400
+
+1778 错误请求-newsid为空-relative
+    [Documentation]    错误请求：newsid为空
+    ...
+    ...    news-case:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    newsid为空    ${News-Case}    6    404

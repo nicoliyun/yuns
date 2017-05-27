@@ -1,0 +1,101 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+Library           Collections
+
+*** Keywords ***
+正常通过验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+地区参数为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    地区参数为空如：
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+token为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    标准返回：城市name 雅虎id 子城市 children
+    ${ContentList}    To Json    ${Response.content}
+    ${dict}    Set Variable    ${ContentList[0]}
+    Get Dictionary Keys    ${dict}
+    Dictionary Should Contain Key    ${dict}    children    [test-info]没有找到key:children
+    Run Keyword If    "${dict['name']}"=="Istanbul"    Should Be Equal As Integers    ${dict['yahooWoeid']}    2344116    [test-info]Istanbul雅虎ID错误${ContentList['yahooWoeid']}
+
+获取本地频道
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    获取本地频道，用以验证不同local下的本地频道
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    [Return]    ${Resp}
+
+业务性验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    业务性验证：local参数差异，获取的本地频道差异
+    ...
+    ...    regioncase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    ${resp_tr}    获取本地频道    ${Region-Case}    1    200
+    ${resp_in}    获取本地频道    ${exceldir}    ${num}    ${code}
+    获取ErrorMsg    ${resp_in}
+    获取ErrorMsg    ${resp_tr}
+    返回内容比对    ${resp_tr}    ${resp_in}

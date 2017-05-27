@@ -1,0 +1,219 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               新闻列表接口测试包含：通过性验证；token值、相应参数为空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        feed
+Resource          feed-flow.txt
+
+*** Test Cases ***
+1800 正确性验证求-ARTICLE
+    [Documentation]    通过性验证：正确请求-artic新闻
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证    ${Feed-Case}    1    200
+
+1801 正确性验证求-VOTE
+    [Documentation]    通过性验证：正确请求-vote投票
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证    ${Feed-Case}    2    200
+
+1802 正确性验证求-TOPIC
+    [Documentation]    通过性验证：正确请求-topic专题
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证    ${Feed-Case}    3    200
+
+1803 正确性验证求-VIDEO
+    [Documentation]    通过性验证：正确请求-video视频
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证    ${Feed-Case}    4    200
+
+1804 正确性验证求-limit为空-ARTICLE
+    [Documentation]    通过性验证：limit为空，系统默认
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    默认参数通过验证    ${Feed-Case}    5    200
+
+1805 正确性验证求-limit为空-VOTE
+    [Documentation]    通过性验证：limit为空，系统默认
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    默认参数通过验证    ${Feed-Case}    6    200
+
+1806 正确性验证求-limit为空-TOPIC
+    [Documentation]    通过性验证：limit为空，系统默认
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    默认参数通过验证    ${Feed-Case}    7    200
+
+1807 正确性验证求-limit为空-VIDEO
+    [Documentation]    通过性验证：limit为空，系统默认
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    默认参数通过验证    ${Feed-Case}    8    200
+
+1808 正确性验证求-type为空
+    [Documentation]    通过性验证：type，系统默认
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    默认参数通过验证    ${Feed-Case}    17    200
+
+1809 错误请求-token为空-ARTICLE
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空    ${Feed-Case}    1    401
+
+1810 错误请求-token为空-VOTE
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空    ${Feed-Case}    2    401
+
+1811 错误请求-token为空-TOPIC
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空    ${Feed-Case}    3    401
+
+1812 错误请求-token为空-VIDEO
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空    ${Feed-Case}    4    401
+
+1813 错误请求-local为空-ARTICLE
+    [Documentation]    错误请求：local为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    9    404
+
+1814 错误请求-local为空-VOTE
+    [Documentation]    错误请求：local为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    10    404
+
+1815 错误请求-local为空-TOPIC
+    [Documentation]    错误请求：local为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    11    404
+
+1816 错误请求-local为空-VIDEO
+    [Documentation]    错误请求：local为空请求
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    12    404
+
+1817 错误请求-tagid为空-ARTICLE
+    [Documentation]    错误请求：tgid为空
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    13    404
+
+1818 错误请求-tagid为空-VOTE
+    [Documentation]    错误请求：tgid为空
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    14    404
+
+1819 错误请求-tagid为空-TOPIC
+    [Documentation]    错误请求：tgid为空
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    15    404
+
+1820 错误请求-tagid为空-VIDEO
+    [Documentation]    错误请求：tgid为空
+    ...
+    ...    feedcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空    ${Feed-Case}    16    404

@@ -1,0 +1,99 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               投票接口包含三个方法：votes-Get获取所有投票，vote-Get获取单个投票，vote-Post给单个投票进行投票操作
+...
+...               投票接口测试包含：通过性验证；token值、地区参数、limit、offset为空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        vote
+Resource          vote-flow.txt
+
+*** Test Cases ***
+1839 正确性验证-votes-Get请求
+    [Documentation]    通过性验证：正确请求，获取所有投票
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证-votes-Get    ${Vote-Case}    1    200
+
+1840 正确性验证-vote-Get请求
+    [Documentation]    通过性验证：正确请求，通过投票id获取单个投票
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证-vote-Get    ${Vote-Case}    5    200
+
+1841 正确性验证-vote-Post请求
+    [Documentation]    通过性验证：正确请求，通过投票id，对单个投票进行投票操作
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    正常通过验证-Post    ${Vote-Case}    6
+
+1842 正确性验证-offset为空
+    [Documentation]    通过性验证：正确请求，offset非必填参数
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证-votes-Get    ${Vote-Case}    3    200
+
+1843 正确性验证-limit为空
+    [Documentation]    通过性验证：正确请求，limit非必填参数
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证-votes-Get    ${Vote-Case}    4    200
+
+1844 错误请求-local为空
+    [Documentation]    错误请求：地区参数为空，返回空的列表
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    local为空    ${Vote-Case}    2    200
+
+1845 错误请求-token为空-votes-Get请求
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空    ${Vote-Case}    1    401
+
+1846 错误请求-token为空-vote-Get请求
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空    ${Vote-Case}    2    401
+
+1847 错误请求-token为空-vote-Post请求
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    votecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空    ${Vote-Case}    6    401

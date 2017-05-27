@@ -1,0 +1,197 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+Library           Collections
+
+*** Keywords ***
+正常通过验证-votes-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，所有投票
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    连接数据库    pymysql    ${DB}
+    新增投票    ${DB_SELECT_VOTE}    ${DB_DELETE_VOTE}    ${DB_INSERT_VOTE}    #新增投票
+    新增投票    ${DB_SELECT_VOTE_OPTION}    ${DB_DELETE_VOTE_OPTION}    ${DB_INSERT_VOTE_OPTION}    #新增投票选项
+    断开数据库
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查-votes    ${Resp}
+    [Teardown]
+
+正常通过验证-vote-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证，单个投票
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查-vote    ${Resp}
+
+正常通过验证-Post
+    [Arguments]    ${exceldir}    ${num}
+    [Documentation]    正常通过验证，对单个投票进行投票操作
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    Comment    结果状态码验证    ${Resp}    ${code}
+    Comment    返回内容检查-votes    ${Resp}
+    获取ErrorMsg    ${Resp}
+    Post返回检查    ${Resp}
+    连接数据库    pymysql    ${DB}
+    删除数据库数据    select * from user_vote where vote_id='34'    delete from user_vote where vote_id='34'
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    Post返回检查    ${Resp}
+    [Teardown]    断开数据库
+
+返回内容检查-votes
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查，所有的投票
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：所有投票返回JSON的相应字段：id，title，cover，starttime...等
+    ${voteinf}    To Json    ${Response.content}
+    ${len}    Get Length    ${voteinf}
+    Should Be True    ${len}>0    [test-info]返回内容长度错误lenth：${len}
+    Dictionary Should Contain Key    ${voteinf[0]}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${voteinf[0]}    title    [test-info]输出不包含key：title
+    Dictionary Should Contain Key    ${voteinf[0]}    cover    [test-info]输出不包含key：cover
+    Dictionary Should Contain Key    ${voteinf[0]}    startTime    [test-info]输出不包含key：starttime
+    Dictionary Should Contain Key    ${voteinf[0]}    endTime    [test-info]输出不包含key：endtime
+    Dictionary Should Contain Key    ${voteinf[0]}    myVote    [test-info]输出不包含key：myvote
+    Dictionary Should Contain Key    ${voteinf[0]}    options    [test-info]输出不包含key：options
+    ${result}    Set Variable    ${voteinf[0]['options']}
+    Dictionary Should Contain Key    ${result[0]}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${result[0]}    content    [test-info]输出不包含key：content
+    Dictionary Should Contain Key    ${result[0]}    voteNum    [test-info]输出不包含key：votenum
+
+返回内容检查-vote
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查，具体的投票
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：单个投票返回JSON的相应字段：id，title，cover，starttime...等
+    ${voteinf}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${voteinf}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${voteinf}    title    [test-info]输出不包含key：title
+    Dictionary Should Contain Key    ${voteinf}    cover    [test-info]输出不包含key：cover
+    Dictionary Should Contain Key    ${voteinf}    startTime    [test-info]输出不包含key：starttime
+    Dictionary Should Contain Key    ${voteinf}    endTime    [test-info]输出不包含key：endtime
+    Dictionary Should Contain Key    ${voteinf}    myVote    [test-info]输出不包含key：myvote
+    Dictionary Should Contain Key    ${voteinf}    options    [test-info]输出不包含key：options
+    ${result}    Set Variable    ${voteinf['options']}
+    Dictionary Should Contain Key    ${result[0]}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${result[0]}    content    [test-info]输出不包含key：content
+    Dictionary Should Contain Key    ${result[0]}    voteNum    [test-info]输出不包含key：votenum
+
+返回内容检查-local为空
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查，local为空时
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：local为空时，返回空的JSON，判断length==0即可
+    ${voteinf}    To Json    ${Response.content}
+    ${len}    Get Length    ${voteinf}
+    Should Be True    ${len}==0    [test-info]返回内容长度错误lenth：${len}
+
+token值为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+local为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    local为空
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查-local为空    ${Resp}
+
+Post返回检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查，所有的投票
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：Post返回，
+    ...
+    ...    判断状态是否为200，如果是PASS，
+    ...
+    ...    判断状态是否为400，如果是，取出返回内容检查返回内容是否为duplicate，是pass
+    ...
+    ...    判断状态为其他（非200，非400），fail
+    ${status}    Set Variable    ${Response.status_code}
+    ${json}    Run Keyword If    ${status}==200    Pass Execution    status=200,test passed
+    ...    ELSE IF    ${status}==400    To Json    ${Response.content}
+    ...    ELSE    fail
+    Should Be Equal As Strings    ${json['message']}    Duplicate commit    [test-info]message获取到的value错误
+
+Post返回检查（删除数据库后）
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查，所有的投票
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：Post返回，
+    ...
+    ...    判断状态是否为200，如果是PASS，
+    ...
+    ...    判断状态是否为400，如果是，取出返回内容检查返回内容是否为duplicate，是pass
+    ...
+    ...    判断状态为其他（非200，非400），fail
+    ${status}    Set Variable    ${Response.status_code}
+    ${json}    Run Keyword If    ${status}==200    Pass Execution    status=200,test passed
+    ...    ELSE    fail
+    Comment    Should Be Equal As Strings    ${json['message']}    Duplicate commit    [test-info]message获取到的value错误

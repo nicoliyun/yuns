@@ -1,0 +1,75 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+Library           Collections
+
+*** Keywords ***
+正常通过验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    构造数据库数据    ${DB_SELECT}    ${DB_DELETE}    ${DB_INSERT}
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+token值为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+topicid为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回JSON包含5个字段：id，title，cover，content，news，那么认为这是一个正常的返回
+    ${topicinf}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${topicinf}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${topicinf}    title    [test-info]输出不包含key：title
+    Dictionary Should Contain Key    ${topicinf}    cover    [test-info]输出不包含key：cover
+    Dictionary Should Contain Key    ${topicinf}    content    [test-info]输出不包含key：content
+    Dictionary Should Contain Key    ${topicinf}    news    [test-info]输出不包含key：news
+    Should Be Equal As Strings    ${topicinf['content']}    接口自动化专用
+    Should Be Equal As Strings    ${topicinf['title']}    测试用专题

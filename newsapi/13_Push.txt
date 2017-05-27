@@ -1,0 +1,49 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               推送RgID接口测试包含：通过性验证；token值、userid、rgid为空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        push
+Resource          push-flow.txt
+
+*** Test Cases ***
+1835 正确性验证
+    [Documentation]    通过性验证：正确请求
+    ...
+    ...    pushcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证    ${Push-Case}    1    200
+
+1836 正常请求-userid为空
+    [Documentation]    正常请求：UserID为空，因为可以从token解析UserID，UserID为空也可以正常返回
+    ...
+    ...    pushcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证    ${Push-Case}    3    200
+
+1837 错误请求-token为空
+    [Documentation]    错误请求：token为空
+    ...
+    ...    pushcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token为空    ${Push-Case}    1    401
+
+1838 错误请求-rgid为空
+    [Documentation]    错误请求：RgID为空
+    ...
+    ...    pushcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    RgID为空    ${Push-Case}    2    400

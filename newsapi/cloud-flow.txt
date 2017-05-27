@@ -1,0 +1,68 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+
+*** Keywords ***
+正常通过验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+参数为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    参数为空如：包括pcid，local参数为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+token为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    标准返回："adSwitch": "ON"
+    ${ContentList}    To Json    ${Response.content}
+    ${length}    Get Length    ${ContentList}
+    Length Should Be    1    ${length}
+    Should Be Equal As Strings    ${ContentList['adSwitch']}    ON    [test-info]${ContentList['adSwitch']}!=ON

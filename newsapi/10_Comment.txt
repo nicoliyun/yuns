@@ -1,0 +1,393 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               comment接口包含：发表评论comment-post，获取评论comments-get，我的评论usercomments-get三个方法
+...
+...               每个方法要应用到新闻article，投票vote，专题topic上
+...
+...               评论接口测试包含：通过性验证、token值、sourceid为空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        comment
+Resource          comment-flow.txt
+
+*** Test Cases ***
+1848 正确性验证-comment-article-Post请求(parent为空)
+    [Documentation]    通过性验证：正确请求ARTICLE，post请求，对新闻进行评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-post-article    ${Comment-Case}    2    200
+
+1849 正确性验证-comment-article-Post请求
+    [Documentation]    通过性验证：正确请求ARTICLE，post请求，对新闻的评论进行评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-post-articl（parentid）    ${Comment-Case}    3    200
+
+1850 正确性验证-comment-vote-Post请求(parent为空)
+    [Documentation]    通过性验证：正确请求VOTE,post请求，对投票进行评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-post-vote    ${Comment-Case}    4    200
+
+1851 正确性验证-comment-vote-Post请求
+    [Documentation]    通过性验证：正确请求VOTE，post请求，对投票的评论进行评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-post-vote(parentid)    ${Comment-Case}    5    200
+
+1852 正确性验证-comment-topic-Post请求(parent为空)
+    [Documentation]    通过性验证：正确请求TOPIC，post请求，对专题进行评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-post-topic    ${Comment-Case}    6    200
+
+1853 正确性验证-comment-topic-Post请求
+    [Documentation]    通过性验证：正确请求TOPIC，post请求，对专题的评论进行评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-post-topic(parentid)    ${Comment-Case}    7    200
+
+1854 正确性验证-comments-article-get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取新闻评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-get    ${Comment-Case}    9    200
+
+1855 正确性验证-comments-article-Get请求(offset为空)
+    [Documentation]    通过性验证：正确请求，时间戳为空get请求，获取新闻评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-get    ${Comment-Case}    10    200
+
+1856 正确性验证-comments-article-Get请求(limit为空)
+    [Documentation]    通过性验证：正确请求，限制条数为空get请求，获取新闻评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-get    ${Comment-Case}    11    200
+
+1857 正确性验证-comments-vote-Get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取投票评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    12    200
+
+1858 正确性验证-comments-vote-Get请求(offset为空)
+    [Documentation]    通过性验证：正确请求，时间戳为空get请求，获取投票评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    13    200
+
+1859 正确性验证-comments-vote-Get请求(limit为空)
+    [Documentation]    通过性验证：正确请求，限制条数为空get请求，获取投票评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    14    200
+
+1860 正确性验证-comments-topic-Get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取专题评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    15    200
+
+1861 正确性验证-comments-topic-Get请求(offset为空)
+    [Documentation]    通过性验证：正确请求，时间戳为空get请求，获取专题评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    16    200
+
+1862 正确性验证-comments-topic-Get请求(limit为空)
+    [Documentation]    通过性验证：正确请求，限制条数为空get请求，获取专题评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    17    200
+
+1863 正确性验证-usercomments-article-get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取我的新闻评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-get    ${Comment-Case}    19    200
+
+1864 正确性验证-userComments-article-Get请求(offset为空)
+    [Documentation]    通过性验证：正确请求，时间戳为空get请求，获取我的新闻评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-get    ${Comment-Case}    20    200
+
+1865 正确性验证-userComments-article-Get请求(limit为空)
+    [Documentation]    通过性验证：正确请求，限制条数为空get请求，获取我的新闻评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证-get    ${Comment-Case}    21    200
+
+1866 正确性验证-userComments-vote-Get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取我的投票评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    22    200
+
+1867 正确性验证-userComments-vote-Get请求(offset为空)
+    [Documentation]    通过性验证：正确请求，时间戳为空get请求，获取我投票评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    23    200
+
+1868 正确性验证-userComments-vote-Get请求(limit为空)
+    [Documentation]    通过性验证：正确请求，限制条数为空get请求，获取我的投票评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    24    200
+
+1869 正确性验证-userComments-topic-Get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取我的专题评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    25    200
+
+1870 正确性验证-userComments-topic-Get请求(offset为空)
+    [Documentation]    通过性验证：正确请求，时间戳为空get请求，获取我的专题评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    26    200
+
+1871 正确性验证-userComments-topic-Get请求(limit为空)
+    [Documentation]    通过性验证：正确请求，限制条数为空get请求，获取我的专题评论数据
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证(投票+专题)-get     ${Comment-Case}    27    200
+
+1872 错误请求-token为空-article-Post请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空-Post    ${Comment-Case}    2    401
+
+1873 错误请求-token为空-vote-Post请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空-Post    ${Comment-Case}    4    401
+
+1874 错误请求-token为空-topic-Post请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空-Post    ${Comment-Case}    6    401
+
+1875 错误请求-token为空-article-Get请求
+    [Documentation]    错误请求：token值为空请求，Get请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空-Get    ${Comment-Case}    9    401
+
+1876 错误请求-token为空-vote-Get请求
+    [Documentation]    错误请求：token值为空请求，Get请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空-Get    ${Comment-Case}    12    401
+
+1877 错误请求-token为空-topic-Get请求
+    [Documentation]    错误请求：token值为空请求，Get请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token值为空-Get    ${Comment-Case}    15    401
+
+1878 错误请求-sourceid为空-article-Post请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    sourceid为空-Post    ${Comment-Case}    28    400
+
+1879 错误请求-sourceid为空-vote-Post请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    sourceid为空-Post    ${Comment-Case}    29    400
+
+1880 错误请求-sourceid为空-topic-Post请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    sourceid为空-Post    ${Comment-Case}    30    400
+
+1881 错误请求-sourceid为空-article-Get请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    sourceid为空-Get    ${Comment-Case}    31    400
+
+1882 错误请求-sourceid为空-vote-Get请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    sourceid为空-Get    ${Comment-Case}    32    400
+
+1883 错误请求-sourceid为空-topic-Get请求
+    [Documentation]    错误请求：token值为空请求，Post请求
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    sourceid为空-Get    ${Comment-Case}    33    400
+
+业务性验证-多次新闻评论
+    [Documentation]    业务性验证，对新闻进行多次评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    对新闻多次评论    ${Comment-Case}    2    200
+
+业务性验证-多次对评论评论
+    [Documentation]    业务性验证，对评论进行多次评论
+    ...
+    ...    commentcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    对评论多次评论    ${Comment-Case}    3    200

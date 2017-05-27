@@ -1,0 +1,167 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+Library           Collections
+
+*** Keywords ***
+正常通过验证-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+正常通过验证-Post
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证-Post
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${random}    获取随机字符串    3
+    Comment    ${newparas}    Replace String    ${paras}    ${paras[25:]}    ${random}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg-user接口专用    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+token值为空-Get
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg-user接口专用    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+token值为空-Post
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg-user接口专用    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回JSON中包含三个字段：id，avatar，nickname，判断nickname为已知修改的name
+    ${userinf}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${userinf}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${userinf}    nickname    [test-info]输出不包含key：nickname
+    Dictionary Should Contain Key    ${userinf}    avatar    [test-info]输出不包含key：avatar
+    Should Be Equal As Strings    ${userinf['nickname']}    cqtest    [test-info]nickname错误
+
+业务性验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    业务性验证，验证接口的修改用户名，修改头像业务
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Post请求    ${paras}    ${header}
+    获取ErrorMsg-user接口专用    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+修改用户名业务返回
+    [Arguments]    ${Response}
+    [Documentation]    修改用户名后，返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回JSON中包含三个字段：id，avatar，nickname，判断nickname为已知修改的name
+    ${userinf}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${userinf}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${userinf}    nickname    [test-info]输出不包含key：nickname
+    Dictionary Should Contain Key    ${userinf}    avatar    [test-info]输出不包含key：avatar
+    Should Be Equal As Strings    ${userinf['nickname']}    testname    [test-info]nickname错误
+
+修改头像业务返回
+    [Arguments]    ${Response}
+    [Documentation]    修改头像后，返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回JSON中包含三个字段：id，avatar，nickname，判断nickname为已知修改的name
+    ${userinf}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${userinf}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${userinf}    nickname    [test-info]输出不包含key：nickname
+    Dictionary Should Contain Key    ${userinf}    avatar    [test-info]输出不包含key：avatar
+    Should Be Equal As Strings    ${userinf['avatar']}    http://amoby-public.libpx.com/images/20160726/_v6CGmxtXIFoGUOG_g0XBw.jpg    [test-info]头像错误错误
+
+获取头像信息
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    获取头像数据
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    修改头像业务返回     ${Resp}
+
+获取用户名信息
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    获取用户名数据
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    修改用户名业务返回     ${Resp}

@@ -1,0 +1,273 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               点赞接口测试包含：通过性验证；token值、参数为空；新闻，新闻评论，投票评论的点赞测试
+...
+...               点赞（Post），获取点赞信息（Get）
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        like
+Resource          like-flow.txt
+
+*** Test Cases ***
+1779 正确性验证-article-Post请求
+    [Documentation]    通过性验证：正确请求，post请求，为新闻点赞
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常验证-Post    ${Like-Case}    1
+
+1780 正确性验证-article_comment-Post请求
+    [Documentation]    通过性验证：正确请求，post请求，为新闻评论点赞
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常验证-Post-article    ${Like-Case}    2
+
+1781 正确性验证-vote_comment-Post请求
+    [Documentation]    通过性验证：正确请求，post请求，为投票评论点赞
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常验证-Post-vote    ${Like-Case}    3
+
+1782 正确性验证-article-Get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取新闻点赞数据
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常验证-Get    ${Like-Case}    10    200
+
+1783 正确性验证-article_comment-Get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取新闻评论点赞数据
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常验证-Get-ariticle    ${Like-Case}    11    200
+
+1784 正确性验证-vote_comment-Get请求
+    [Documentation]    通过性验证：正确请求，get请求，获取投票评论点赞数据
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常验证-Get-vote    ${Like-Case}    12    200
+
+1785 错误请求-token为空-article-Post请求
+    [Documentation]    错误请求：token值为空请求，新闻点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Post    ${Like-Case}    1    401
+
+1786 错误请求-token为空-article_comment-Post请求
+    [Documentation]    错误请求：token值为空请求，新闻评论点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Post    ${Like-Case}    2    401
+
+1787 错误请求-token为空-vote_comment-Post请求
+    [Documentation]    错误请求：token值为空请求，投票评论点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Post    ${Like-Case}    3    401
+
+1788 错误请求-token为空-article-Get请求
+    [Documentation]    错误请求：token值为空请求，获取新闻点赞Get请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Get    ${Like-Case}    10    401
+
+1789 错误请求-token为空-article_comment-Get请求
+    [Documentation]    错误请求：token值为空请求，获取新闻评论点赞Get请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Get    ${Like-Case}    11    401
+
+1790 错误请求-token为空-vote_comment-Get请求
+    [Documentation]    错误请求：token值为空请求，获取评论点赞Get请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Get    ${Like-Case}    12    401
+
+1791 错误请求-sourceid为空-article-Post请求
+    [Documentation]    错误请求：sourceid为空，新闻点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Post    ${Like-Case}    4    400
+
+1792 错误请求-sourceid为空-article_comment-Post请求
+    [Documentation]    错误请求：sourceid为空，新闻评论点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Post    ${Like-Case}    5    400
+
+1793 错误请求-sourceid为空-vote_comment-Post请求
+    [Documentation]    错误请求：sourceid为空，投票评论点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Post    ${Like-Case}    6    400
+
+1794 错误请求-sourceid为空-article-Get请求
+    [Documentation]    错误请求：sourceid为空，获取新闻点赞Get请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Get    ${Like-Case}    13    400
+
+1795 错误请求-sourceid为空-article_comment-Get请求
+    [Documentation]    错误请求：sourceid为空，获取新闻评论点赞Get请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Get    ${Like-Case}    14    400
+
+1796 错误请求-sourceid为空-vote_comment-Get请求
+    [Documentation]    错误请求：sourceid为空，获取投票评论点赞Get请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Get    ${Like-Case}    15    400
+
+1797 错误请求-style为空-article-Post请求
+    [Documentation]    错误请求：style为空，新闻点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Post    ${Like-Case}    7    400
+
+1798 错误请求-style为空-article_comment-Post请求
+    [Documentation]    错误请求：style为空，新闻评论点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Post    ${Like-Case}    8    400
+
+1799 错误请求-style为空-vote_comment-Post请求
+    [Documentation]    错误请求：style为空，投票评论点赞Post请求
+    ...
+    ...    likecase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    参数为空-Post    ${Like-Case}    9    400
+
+业务性验证-article_comment-点赞后点赞状态和次数记录
+    [Documentation]    业务性验证：当对新闻评论进行点赞后该评论的点赞总次数应该增加1，点赞状态应该为已点赞
+    ...
+    ...    ${exceldir}：请求新闻的评论列表所需参数的excel地址
+    ...
+    ...    ${num}：获取参数的行数-1
+    ...
+    ...    ${exceldir2}：获取对新闻评论点赞时所需参数的excel地址
+    ...
+    ...    ${num2}：获取参数的行数-1
+    ...
+    ...    ${replace}：需要被替换的参数的位置(从第几位到第几位，或某一个特定的字符等)
+    ...
+    ...    ${condition}：数据库查询需要的条件
+    sleep    120
+    业务关联性验证-评论点赞状态和次数判定    ${Comment-Case}    10    ${Like-Case}    2    ${ARTICLE_SOURCEID}    34:35
+
+业务性验证-vote_comment-点赞后点赞状态和次数记录
+    [Documentation]    业务性验证：当对投票评论进行点赞后该评论的点赞总次数应该增加1，点赞状态应该为已点赞
+    ...
+    ...    ${exceldir}：请求投票的评论列表所需参数的excel地址
+    ...
+    ...    ${num}：获取参数的行数-1
+    ...
+    ...    ${exceldir2}：获取对投票评论点赞时所需参数的excel地址
+    ...
+    ...    ${num2}：获取参数的行数-1
+    ...
+    ...    ${replace}：需要被替换的参数的位置(从第几位到第几位，或某一个特定的字符等)
+    ...
+    ...    ${condition}：数据库查询需要的条件
+    sleep     30
+    业务关联性验证-评论点赞状态和次数判定    ${Comment-Case}    13    ${Like-Case}    3    ${VOTE_SOURCEID}    31:32
+
+同一用户对评论多次点赞-article_comment-post请求
+    同一条评论多次点赞(同一个用户)    ${ARTICLE_SOURCEID}    ${Like-Case}    2    34:35
+
+同一用户对评论多次点赞-vote_comment-post请求
+    同一条评论多次点赞(同一个用户)    ${VOTE_SOURCEID}    ${Like-Case}    3    31:32
+
+不同用户对评论多次点赞-article_comment-post请求
+    同一条评论多次点赞(不同用户)    ${ARTICLE_SOURCEID}    ${Like-Case}    2    34:35
+
+不同用户对评论多次点赞-vote_comment-post请求
+    同一条评论多次点赞(不同用户)    ${VOTE_SOURCEID}    ${Like-Case}    3    31:32
+
+同一用户对新闻多次点赞-article-post请求
+    同一条新闻多次点赞(同一个用户)    ${Like-Case}    1
+
+不同用户对新闻多次点赞-article-post请求
+    同一条新闻多次点赞(不同用户)    ${Like-Case}    1

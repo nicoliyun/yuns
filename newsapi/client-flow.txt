@@ -1,0 +1,52 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+Library           Collections
+
+*** Keywords ***
+正常通过验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+参数为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    参数为空
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回JSON只包含了一个data字段
+    ${clientinf}    To Json    ${Response.content}
+    Comment    Get Dictionary Items    ${clientinf}
+    Dictionary Should Contain Key    ${clientinf}    data    [test-info]输出不包含key：data

@@ -1,0 +1,49 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               地区接口测试包含：通过性验证；token为空、地区参数为空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        region
+Resource          region-flow.txt
+
+*** Test Cases ***
+1767 正确性验证
+    [Documentation]    通过性验证：正确请求
+    ...
+    ...    regioncase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证    ${Region-Case}    1    200
+
+1768 错误请求-地区参数为空
+    [Documentation]    错误请求：地区参数为空
+    ...
+    ...    regioncase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    地区参数为空    ${Region-Case}    2    404
+
+1769 错误请求-token为空
+    [Documentation]    错误请求：token为空
+    ...
+    ...    regioncase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    token为空    ${Region-Case}    1    401
+
+业务性验证-local不同
+    [Documentation]    业务性验证：不同的local参数，获取的本地频道列表不同
+    ...
+    ...    regioncase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    业务性验证    ${Region-Case}    3    200

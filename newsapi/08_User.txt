@@ -1,0 +1,71 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               用户接口测试包含：通过性验证；token值空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        user
+Resource          user-flow.txt
+
+*** Test Cases ***
+1821 正确性验证-Post
+    [Documentation]    通过性验证：正确请求,修改用户名，201表示created修改成功
+    ...
+    ...    usercase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证-Post    ${User-Case}    2    201
+
+1822 正确性验证-Get
+    [Documentation]    通过性验证：正确请求
+    ...
+    ...    usercase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    正常通过验证-Get    ${User-Case}    1    200
+
+1823 错误请求-token为空-Post
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    usercase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Post    ${User-Case}    2    401
+
+1824 错误请求-token为空-Get
+    [Documentation]    错误请求：token值为空请求
+    ...
+    ...    usercase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    token值为空-Get    ${User-Case}    1    401
+
+业务性验证-修改头像
+    [Documentation]    接口业务，修改头像，201表示created修改成功
+    ...
+    ...    usercase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    业务性验证    ${User-Case}    4    201
+    获取头像信息    ${User-Case}    1    200
+
+业务性验证-修改用户名
+    [Documentation]    接口业务，修改用户名，201表示created修改成功
+    ...
+    ...    usercase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码 |
+    业务性验证    ${User-Case}    3    201
+    获取用户名信息    ${User-Case}    1    200

@@ -1,0 +1,82 @@
+*** Settings ***
+Documentation     作者：王坤强
+...
+...               客户端接口测试包含：通过性验证、token值、地区参数、pcid、versioncode、包名
+...               signature为空用例测试
+Suite Setup       创建Session
+Suite Teardown    删除session
+Force Tags        client
+Resource          client-flow.txt
+
+*** Test Cases ***
+1828 正确性验证
+    [Documentation]    通过性验证：正确请求
+    ...
+    ...    clientcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证    ${Client-Case}    1    200
+
+1829 正确请求-token为空
+    [Documentation]    正常请求：token值为空请求，该接口请求不需要传token值
+    ...
+    ...    故token为空时也是正常请求
+    ...
+    ...    clientcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    正常通过验证    ${Client-Case}    1    200
+
+1830 错误请求-local为空
+    [Documentation]    错误请求：local为空
+    ...
+    ...    clientcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    参数为空    ${Client-Case}    2    400
+
+1831 错误请求-pcid为空
+    [Documentation]    错误请求：pcid为空
+    ...
+    ...    clientcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    参数为空    ${Client-Case}    3    400
+
+1832 错误请求-versioncode为空
+    [Documentation]    错误请求：版本号为空
+    ...
+    ...    clientcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    参数为空    ${Client-Case}    4    400
+
+1833 错误请求-包名为空
+    [Documentation]    错误请求：包名为空
+    ...
+    ...    clientcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    参数为空    ${Client-Case}    5    400
+
+1834 错误请求-signature为空
+    [Documentation]    错误请求：signature为空
+    ...
+    ...    clientcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    参数为空    ${Client-Case}    6    400

@@ -1,0 +1,273 @@
+*** Settings ***
+Documentation     元素层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           Collections
+Library           String
+Library           DatabaseLibrary
+
+*** Variables ***
+${Url}            http://192.168.10.101:8801    # 服务器地址
+${TokenNull}      \    # token值为空
+${Token-Case}     ${CURDIR}${/}case${/}tokencase.xlsx    # token接口测试数据
+${Channel-Case}    ${CURDIR}${/}case${/}channelcase.xlsx    # 频道接口测试数据
+${Cloud-Case}     ${CURDIR}${/}case${/}cloudcase.xlsx    # 云控接口测试数据
+${Region-Case}    ${CURDIR}${/}case${/}regioncase.xlsx    # 地区接口测试数据
+${News-Case}      ${CURDIR}${/}case${/}newscase.xlsx    # 新闻详情接口测试数据
+${Like-Case}      ${CURDIR}${/}case${/}likecase.xlsx    # 点赞接口数据
+${Feed-Case}      ${CURDIR}${/}case${/}feedcase.xlsx    # 新闻列表接口测试数据
+${User-Case}      ${CURDIR}${/}case${/}usercase.xlsx    # 用户接口测试数据
+${Topic-case}     ${CURDIR}${/}case${/}topiccase.xlsx    # 专题接口测试数据
+${Vote-Case}      ${CURDIR}${/}case${/}votecase.xlsx    # 投票接口测试数据
+${Client-Case}    ${CURDIR}${/}case${/}clientcase.xlsx    # 客户的版本接口测试数据
+${Comment-Case}    ${CURDIR}${/}case${/}commentcase.xlsx    # 评论接口测试数据
+${Push-Case}      ${CURDIR}${/}case${/}pushcase.xlsx    # 注册接口接口数据
+${DB}             database='whale',user='admin',password='admin123',host='192.168.10.103',port=3306,charset='utf8'    # 数据库参数信息
+${DB_SELECT}      select * from topic where id=18    # topic 表格查询xx数据
+${DB_DELETE}      delete from topic where id=18    # topic表格删除xx数据
+${DB_INSERT}      insert into topic values ('18','测试用专题','http://d16sw3lrufqgq2.cloudfront.net.com/IMAGES/20160802/%2Ftmp/1470123171438-824078.jpg','接口自动化专用','0','2016-08-02 15:38:00','2026-08-02 15:38:00','1','0','tr','TR','2016-08-02 15:38:00','2026-08-03 15:38:00','2016-07-02 15:38:00','1','2','3','4','5')    # topic表格插入xx数据
+${ARTICLE_SOURCEID}    source_id='5N-MdLjnGgD'    # 数据库中新闻sourceid
+${VOTE_SOURCEID}    source_id='34'    # 数据库中投票sourceid
+${TOPIC_SOURCEID}    source_id='18'    # 数据库中专题sourceid
+${TABLENAME}      comment    # 数据库中的新闻表名
+${TARG_ID}        id    # 数据表中查找的target id
+${DB_SELECT_VOTE}    SELECT * FROM `vote` WHERE id='34'
+${DB_DELETE_VOTE}    DELETE FROM vote WHERE id='34'
+${DB_INSERT_VOTE}    INSERT INTO vote VALUES('34','开不开心','https://cm-whale.s3.eu-central-1.amazonaws.com/images/20161214/%2Ftmp/1481701020122-400327.jpg','开心吗？','2016-08-09 10:08:36','2018-05-30 11:05:32','0','tr','TR','2016-10-26 11:12:00','运动,科技','1','0','自定义专题','推送描述','','','0','2016-12-10 14:54:44','2019-12-13 14:54:44');
+${DB_SELECT_VOTE_OPTION}    SELECT * FROM `vote_option` WHERE vote_id='34'
+${DB_DELETE_VOTE_OPTION}    DELETE FROM vote_option WHERE vote_id='34'
+${DB_INSERT_VOTE_OPTION}    INSERT INTO vote_option VALUES('1','34','开心','1','22','0'),('2','34','不开心','2','11','0')
+
+*** Keywords ***
+创建Session
+    [Documentation]    创建session，suite执行前引入
+    ...
+    ...    放在suit级的setup里面
+    Create Session    URL    ${Url}
+    [Return]    URL
+
+添加Header
+    [Arguments]    ${token}
+    [Documentation]    生成正确header
+    ...
+    ...    token：传入的token值，可为正常值（正确的header），可为空（空的header）
+    ...
+    ...    header：生成的header
+    &{dict}    Create Dictionary    Authorization=Bearer${SPACE}${token}    #header添加token值
+    [Return]    &{dict}
+
+获取请求参数
+    [Arguments]    ${excel_dir}    ${num}
+    [Documentation]    获取请求参数
+    ...
+    ...    excel_dir：测试用例excel表
+    ...
+    ...    num：获取表中某行数据
+    ...
+    ...    paras：请求的参数
+    ${Paras}    getexcelparas    ${excel_dir}    ${num}
+    [Return]    ${Paras}
+
+token-Get请求
+    [Arguments]    ${paras}
+    [Documentation]    token Get请求
+    ...
+    ...    paras：请求参数
+    ...
+    ...    Response：Get返回数据
+    ${Response}    Get Request    URL    ${paras}
+    [Return]    ${Response}
+
+Get请求
+    [Arguments]    ${paras}    ${header}
+    [Documentation]    get请求
+    ...
+    ...    paras：请求参数
+    ...
+    ...    header：token值
+    ...
+    ...    Response：接口返回
+    ${Response}    Get Request    URL    ${paras}    ${header}
+    [Return]    ${Response}
+
+Post请求
+    [Arguments]    ${paras}    ${header}
+    [Documentation]    post请求
+    ...
+    ...    paras：请求参数
+    ...
+    ...    header：token值
+    ${Response}    Post request    URL    ${paras}    headers=${header}
+    [Return]    ${Response}
+
+结果状态码验证
+    [Arguments]    ${Response}    ${code}
+    [Documentation]    结果状态验证
+    ...
+    ...    Response：接口返回结果
+    ...
+    ...    code：状态码
+    Should Be Equal As Integers    ${Response.status_code}    ${code}    [test-info]接口返回状态码不为${code}
+
+获取随机字符串
+    [Arguments]    ${str_len}
+    [Documentation]    获取随机字符串
+    ...
+    ...    str_len：随机生成的字符串长度
+    ${randomstr}    Randomstr    ${str_len}
+    [Return]    ${randomstr}
+
+获取随机数字
+    [Arguments]    ${start}    ${end}
+    [Documentation]    获取随机数字，取开始-结束数字之间的随机数字
+    ...
+    ...    strat：开始数字
+    ...
+    ...    end：结束数字
+    ${randomstr}    Randomnum    ${start}    ${end}
+    [Return]    ${randomstr}
+
+删除session
+    [Documentation]    删除所有session，每个测试suit执行完后操作
+    ...
+    ...    放在suit级的teardown里面
+    Delete ALL Sessions
+
+获取token
+    [Documentation]    通过token接口，获取token
+    ...
+    ...    返回TokenVluse：token值供其他接口调用
+    ${paras}    获取请求参数    ${Token-Case}    1
+    ${Resp}    token-Get请求    ${paras}
+    ${tokendict}    Run Keyword If    ${Resp.status_code}==200    To Json    ${Resp.content}
+    ...    ELSE    Fail    [test-info]token接口返回错误：status_code=${Resp.status_code}
+    Comment    ${tokendict}    To Json    ${Resp.content}
+    ${TokenValues}    Set Variable    ${tokendict['accessToken']}
+    [Return]    ${TokenValues}
+
+连接数据库
+    [Arguments]    ${modul}    ${paras}
+    [Documentation]    数据库连接关键字
+    ...
+    ...    参数解释：
+    ...
+    ...    modul：数据库名
+    ...
+    ...    paras：数据库参数，如地址，端口，用户，密码等
+    Connect To Database Using Custom Params    ${modul}    ${paras}
+
+新增数据
+    [Arguments]    ${select}    ${delete}    ${insert}
+    [Documentation]    数据库操作，查询-删除-插入操作，解决数据库无数据问题
+    ...
+    ...    用户自定义数据，如果查询到就删除，然后再插入自定义数据。保证始终仅有一条可用数据。避免数据重复过多。
+    ...
+    ...    select：查询SQL语句
+    ...
+    ...    delete：删除SQL语句
+    ...
+    ...    insert：插入SQL语句
+    ${table}    Query    ${select}
+    ${length}    Get Length    ${table}
+    Run Keyword IF    ${length}!=0    Execute Sql String    ${delete}
+    Execute Sql string    ${insert}
+
+断开数据库
+    [Documentation]    断开数据库连接
+    Disconnect From Database
+
+删除数据库数据
+    [Arguments]    ${select}    ${delete}
+    [Documentation]    删除数据库数据，查询-删除操作，Post写入数据前操作
+    ...
+    ...
+    ...    select：查询SQL语句
+    ...
+    ...    delete：删除SQL语句
+    ${table}    Query    ${select}
+    ${length}    Get Length    ${table}
+    Run Keyword IF    ${length}!=0    Execute Sql String    ${delete}
+
+查询数据库
+    [Arguments]    ${select}
+    [Documentation]    查询数据，查询操作，
+    ...
+    ...
+    ...    select：查询SQL语句
+    ${table}    Query    ${select}
+    [Return]    ${table}
+
+返回内容比对
+    [Arguments]    ${resp_tr}    ${resp_in}
+    [Documentation]    判断两个返回内容是否相等
+    Should Not Be Equal    ${resp_tr.content}    ${resp_in.content}    [test-inf]不同local获取的频道相同
+
+获取ErrorMsg
+    [Arguments]    ${result}
+    [Documentation]    获取返回错误信息：如果返回不为200或者201，则认为是个错误返回，则去读取ErrorMsg
+    ...
+    ...    result：接口返回
+    ${json_data}    Run Keyword If    ${result.status_code}!=200    TO Json    ${result.content}
+    ${err_msg}    Run Keyword If    ${result.status_code}!=200    Get From Dictionary    ${json_data}    message
+
+获取ErrorMsg-user接口专用
+    [Arguments]    ${result}
+    [Documentation]    获取返回错误信息：如果返回不为200或者201，则认为是个错误返回，则去读取ErrorMsg
+    ...
+    ...    result：接口返回
+    ${json_data}    Run Keyword If    ${result.status_code}!=201    TO Json    ${result.content}
+    ${err_msg}    Run Keyword If    ${result.status_code}!=201    Get From Dictionary    ${json_data}    message
+
+部分内容替换
+    [Arguments]    ${paras}    ${search}    ${replace}
+    [Documentation]    替换参数中的部分内容
+    ...
+    ...    ${paras}：原始字符串
+    ...
+    ...    ${search}：被替换的str
+    ...
+    ...    ${replace}：期望换成的str
+    ${newparas}    Replace String    ${paras}    ${search}    ${replace}
+    [Return]    ${newparas}
+
+构造数据库数据
+    [Arguments]    ${select}    ${delete}    ${insert}
+    [Documentation]    数据库操作，查询-删除-插入操作，解决数据库无数据问题
+    ...
+    ...    用户自定义数据，如果查询到就删除，然后再插入自定义数据。保证始终仅有一条可用数据。避免数据重复过多。
+    ...
+    ...    select：查询SQL语句
+    ...
+    ...    delete：删除SQL语句
+    ...
+    ...    script：执行的SQL脚本
+    连接数据库    pymysql    ${DB}
+    新增数据    ${select}    ${delete}    ${insert}
+    Comment    新增数据    select * from topic where id=18    delete from topic where id=18    insert into topic values ('18','test_topic','http://d16sw3lrufqgq2.cloudfront.net.com/IMAGES/20160802/%2Ftmp/1470123171438-824078.jpg','接口自动化专用','0','2016-08-02 15:38:00','2026-08-02 15:38:00','1','0','tr','TR','2016-08-02 15:38:00','2026-08-03 15:38:00','2016-07-02 15:38:00','1','2','3','4','5')
+    断开数据库
+
+获取新闻id
+    [Documentation]    从数据空获取一条新闻，作为我们需要查询的新闻，这样可以保证此id对应的新闻，真实存在于数据库
+    ...
+    ...    news_id：返回一条数据库存在的新闻id
+    ${table}    Query    SELECT id FROM news ORDER BY id;
+    ${len}    Get Length    ${table}
+    Should Be True    ${len}>0    [test-info]获取新闻id失败
+    ${news_id}    Set Variable    ${table[0][0]}
+    [Return]    ${news_id}
+
+新增投票
+    [Arguments]    ${select}    ${delete}    ${insert}
+    [Documentation]    数据库操作，查询-删除-插入操作，解决数据库无数据问题
+    ...
+    ...    用户自定义数据，如果查询到就删除，然后再插入自定义数据。保证始终仅有一条可用数据。避免数据重复过多。
+    ...
+    ...    select：查询SQL语句
+    ...
+    ...    delete：删除SQL语句
+    ...
+    ...    insert：插入SQL语句
+    ${table}    Query    ${select}
+    ${length}    Get Length    ${table}
+    Run Keyword IF    ${length}!=0    Execute Sql String    ${delete}
+    Execute Sql String    ${insert}

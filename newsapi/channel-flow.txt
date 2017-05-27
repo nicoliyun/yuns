@@ -1,0 +1,108 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+
+*** Keywords ***
+正常通过验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查    ${Resp}
+
+地区参数为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    地区参数为空如：
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+token值为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+返回内容检查
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：需要包含三个title（Ana Sayfa,Video,Oylama），获取到的频道数大于5条。supportype为1时url为空，supportype为2时url不为空
+    ${ContentList}    To Json    ${Response.content}
+    ${channel}    Set Variable    ${ContentList[0]}
+    Comment    Should Be Equal    ${channel['title']}    Ana Sayfa    [test-info]title错误不等于Ana Sayfa    #接口变更，暂不判断接口频道title
+    Run Keyword If    "${channel['supportType']}"=="1"    Should Be Equal As Strings    ${channel['url']}    None    [test-info]url!=空
+    Run Keyword If    "${channel['supportType']}"=="2"    Should Not Be Equal As Strings    ${channel['url']}    None    [test-info]url==空
+    ${length}    Get Length    ${ContentList[0]['children']}
+    Should Be True    ${length}>5    [test-info]获取到的频道列表数<5
+    Comment    ${children}    Set Variable    ${ContentList[0]['children']}
+    Comment    Should Be Equal    ${children[0]['title']}    Öneriler    [test-info]获取推荐频道错误${children[0]['title']}!=Öneriler    #接口变更，暂不判断接口频道title
+    Comment    Should Be Equal    ${children[1]['title']}    Güncel    [test-info]获取热点频道错误${children[1]['title']}!=Güncel
+    Comment    ${video}    Set Variable    ${ContentList[1]}
+    Comment    Should Be Equal    ${video['title']}    Video    [test-info]title错误${video['title']}!=Video
+    Comment    ${vote}    Set Variable    ${ContentList[2]}
+    Comment    Should Be Equal    ${vote['title']}    Oylama    [test-info]title错误${vote['title']}!=Oylama
+
+地区参数选择
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    地区参数选择，用以选择不同的地区参数来获取不同的频道列表
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    结果状态码验证    ${Resp}    ${code}
+    [Return]    ${Resp}
+
+业务验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    业务验证：比较两次不同地区参数请求返回内容
+    ...
+    ...    channelcase:测试用例excel表
+    ...
+    ...    num：测试用例所在excel中的对应行数-1
+    ...
+    ...    code：预期返回的状态码
+    ${resp_tr}    地区参数选择    ${Channel-Case}    1    200
+    ${resp_in}    地区参数选择    ${exceldir}    ${num}    ${code}
+    返回内容比对    ${resp_tr}    ${resp_in}

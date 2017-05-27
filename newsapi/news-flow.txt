@@ -1,0 +1,147 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+Library           Collections
+
+*** Keywords ***
+正常通过验证-news
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证-news
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    Comment    连接数据库    pymysql    ${DB}
+    Comment    ${news_id}    获取新闻id
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${new_paras}    部分内容替换    ${paras}    ${paras[-11:]}    ${news_id}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查-news    ${Resp}
+    [Teardown]
+
+正常通过验证-relative
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证-relative
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    Comment    连接数据库    pymysql    ${DB}
+    Comment    ${news_id}    获取新闻id
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${new_paras}    部分内容替换    ${paras}    ${paras[9:20]}    ${news_id}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查-relative    ${Resp}
+    [Teardown]
+
+正常通过验证-newsid
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证-newsid
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    Comment    连接数据库    pymysql    ${DB}
+    Comment    ${news_id}    获取新闻id
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    Comment    ${new_paras}    部分内容替换    ${paras}    ${paras[-12:]}    ${news_id}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容检查-newsid    ${Resp}
+    [Teardown]
+
+返回内容检查-relative
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查-relative
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回json中需包含soureUrl，images，id，commentcount等几个key，对应的value因不固定性所有在此不做判断
+    ${ContentList}    To Json    ${Response.content}
+    ${len}    Get Length    ${ContentList}
+    Pass Execution If    ${len}==0    [test-info]没有更多的新闻
+    ${news}    Set Variable    ${ContentList[0]}
+    Dictionary Should Contain Key    ${news}    sourceUrl    [test-info]输出不包含key：sourceUrl
+    Dictionary Should Contain Key    ${news}    images    [test-info]输出不包含key：images
+    Dictionary Should Contain Key    ${news}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${news}    comments    [test-info]输出不包含key：comments
+
+返回内容检查-newsid
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查-newsid
+    ...
+    ...    Response：传入结果
+    ...    判断标准：返回json中需包含soureUrl，images，id，commentcount等几个key，对应的value因不固定性所有在此不做判断
+    ${ContentList}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${ContentList}    images    [test-info]输出不包含key：sourceUrl
+    Dictionary Should Contain Key    ${ContentList}    sourceUrl    [test-info]输出不包含key：images
+    Dictionary Should Contain Key    ${ContentList}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${ContentList}    comments    [test-info]输出不包含key：comments
+
+返回内容检查-news
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：返回json中需包含soureUrl，images，id，commentcount等几个key，对应的value因不固定性所有在此不做判断
+    ${ContentList}    To Json    ${Response.content}
+    ${news}    Set Variable    ${ContentList['data'][0]}
+    Dictionary Should Contain Key    ${news}    sourceUrl    [test-info]输出不包含key：sourceUrl
+    Dictionary Should Contain Key    ${news}    images    [test-info]输出不包含key：images
+    Dictionary Should Contain Key    ${news}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${news}    comments    [test-info]输出不包含key：comments
+
+newsid为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    newsid为空：
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+token值为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}

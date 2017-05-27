@@ -1,0 +1,140 @@
+*** Settings ***
+Documentation     流程层
+Library           mylibraryrequests
+Library           mylibrarycommon
+Library           String
+Resource          elements.txt
+Resource          like-flow.txt
+
+*** Keywords ***
+正常通过验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    正常通过验证
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取随机token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    返回内容判断    ${Resp}
+
+默认参数通过验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    limit，type为空的验证
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    默认返回    ${Resp}
+
+默认返回
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    当参数为默认参数 limit为空，type为空时，检查返回
+    ${ContentList}    To Json    ${Response.content}
+    log    ${ContentList}
+    ${len}    get length    ${ContentList}
+    Should Be True    ${len}==1    [test-info]JSON长度${len}错误
+    Dictionary Should Contain Key    ${ContentList}    entities    [test-info]输出不包含key：entities
+
+返回内容判断
+    [Arguments]    ${Response}
+    [Documentation]    返回内容检查
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：每次请求返回内容不同，故判断为返回JSON中包含entities，next，previous即可
+    ${ContentList}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${ContentList}    entities    [test-info]输出不包含key：entities
+    ${len}    get length    ${ContentList['entities']}
+    Should Be True    ${len}>0    [test-info]新闻列表无数据，长度为${len}
+    ${news}    Set Variable    ${ContentList['entities'][0]}
+    Dictionary Should Contain Key    ${news}    id    [test-info]输出不包含key：id
+    Dictionary Should Contain Key    ${news}    images    [test-info]输出不包含key：images
+    Dictionary Should Contain Key    ${news}    likes    [test-info]输出不包含key：likes
+    Dictionary Should Contain Key    ${news}    comments    [test-info]输出不包含key：comments
+
+token值为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    token值为空Get 请求
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${header}    添加Header    ${TokenNull}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+参数为空
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    错误请求，local或tgid为空
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+
+业务性验证
+    [Arguments]    ${exceldir}    ${num}    ${code}
+    [Documentation]    业务性验证，验证参数中只运行返回5条数据
+    ...
+    ...
+    ...    code：接口status code
+    ...
+    ...    exceldir：用例的excel表
+    ...
+    ...    num：表中的某条数据
+    ...
+    ...    TokenValues：正确的token值
+    ${TokenValues}    获取token
+    ${header}    添加Header    ${TokenValues}
+    ${paras}    获取请求参数    ${exceldir}    ${num}
+    ${Resp}    Get请求    ${paras}    ${header}
+    获取ErrorMsg    ${Resp}
+    结果状态码验证    ${Resp}    ${code}
+    检查返回limit    ${Resp}
+
+检查返回limit
+    [Arguments]    ${Response}
+    [Documentation]    返回内容数据条数检查，只返回5条数据，查看返回结果
+    ...
+    ...    Response：传入结果
+    ...
+    ...    判断标准：每次请求返回内容不同，故判断为返回JSON中包含entities，next，previous即可
+    ${ContentList}    To Json    ${Response.content}
+    Dictionary Should Contain Key    ${ContentList}    entities    [test-info]输出不包含key：entities
+    Comment    Length Should Be    ${ContentList['entities']}    6    [test-info]返回新闻数不为5：${ContentList['entities']}
+    ${length}    Get Length    ${ContentList['entities']}
+    Run Keyword IF    ${length}==5    Pass Execution    返回为：没有专题的Feed列表
+    ...    ELSE IF    ${length}==6    Pass Execution    返回为：存在专题的Feed列表
+    ...    ELSE    Fail    [test-info]返回列表长度不为6或者5
